@@ -63,27 +63,18 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-                // FinTwin specific colors
+                // FinTwin specific colors - Updated with the provided green palette
                 fintwin: {
-                    blue: {
-                        light: '#4299E1',
-                        DEFAULT: '#3182CE',
-                        dark: '#2C5282'
-                    },
-                    teal: {
-                        light: '#4FD1C5',
-                        DEFAULT: '#38B2AC',
-                        dark: '#285E61'
-                    },
                     green: {
-                        light: '#68D391',
-                        DEFAULT: '#48BB78',
-                        dark: '#276749'
-                    },
-                    orange: {
-                        light: '#F6AD55',
-                        DEFAULT: '#ED8936',
-                        dark: '#C05621'
+                        lightest: '#D8F3DC', // Lightest green
+                        lighter: '#B7EAC7', // Light green
+                        light: '#95D5B2', // Medium-light green
+                        medium: '#74C69D', // Medium green
+                        DEFAULT: '#52B788', // Default/primary green
+                        dark: '#40916C', // Medium-dark green
+                        darker: '#2D6A4F', // Dark green
+                        darkest: '#1B4332', // Very dark green
+                        deepest: '#081C15'  // Deepest green
                     },
                     gray: {
                         100: '#F7FAFC',

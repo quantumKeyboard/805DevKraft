@@ -1,46 +1,39 @@
-import React, { useState } from 'react';
+
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowRight, Bell, ChevronDown, CoinsIcon, DollarSign, LineChart, Percent, PieChart, User } from 'lucide-react';
+import { Bell, ChevronDown, LineChart, User, History, PiggyBank, Landmark } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import ScenarioSimulator from '@/components/ScenarioSimulator';
 
 const Simulator = () => {
-  const [savingsRate, setSavingsRate] = useState(15);
-  const [income, setIncome] = useState(5000);
-  const [expenses, setExpenses] = useState(3500);
-  const [investments, setInvestments] = useState(500);
-  const [timeHorizon, setTimeHorizon] = useState(10);
-  
   return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
+    <div className="min-h-screen bg-fintwin-green-lightest/50">
+      <header className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-fintwin-green-light/20">
         <div className="container flex items-center justify-between h-16">
           <div className="flex items-center gap-4">
             <Link to="/" className="font-bold text-xl">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-fintwin-blue to-fintwin-teal">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-fintwin-green-dark to-fintwin-green-darker">
                 FinTwin
               </span>
             </Link>
             <nav className="hidden md:flex items-center gap-6">
-              <Link to="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground">Dashboard</Link>
+              <Link to="/dashboard" className="text-sm font-medium text-fintwin-green-dark hover:text-fintwin-green-darker">Dashboard</Link>
               <Link to="/simulator" className="text-sm font-medium text-foreground">Simulator</Link>
-              <Link to="/predictions" className="text-sm font-medium text-muted-foreground hover:text-foreground">Predictions</Link>
-              <Link to="/learning" className="text-sm font-medium text-muted-foreground hover:text-foreground">Learning</Link>
+              <Link to="/predictions" className="text-sm font-medium text-fintwin-green-dark hover:text-fintwin-green-darker">Predictions</Link>
+              <Link to="/learning" className="text-sm font-medium text-fintwin-green-dark hover:text-fintwin-green-darker">Learning</Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm">
-              <CoinsIcon className="h-4 w-4 mr-2" />
+            <Button variant="ghost" size="sm" className="text-fintwin-green-dark">
+              <PiggyBank className="h-4 w-4 mr-2" />
               <span>$24,500</span>
             </Button>
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" className="border-fintwin-green-medium/30 text-fintwin-green-dark hover:bg-fintwin-green-lightest">
               <Bell className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" className="border-fintwin-green-medium/30 text-fintwin-green-dark hover:bg-fintwin-green-lightest">
               <User className="h-4 w-4" />
             </Button>
           </div>
@@ -50,280 +43,291 @@ const Simulator = () => {
       <main className="container py-8">
         <div className="flex flex-col gap-8">
           <div>
-            <h1 className="text-3xl font-bold">Financial Twin Simulator</h1>
-            <p className="text-muted-foreground">Test different scenarios to visualize your financial future</p>
+            <h1 className="text-3xl font-bold text-fintwin-green-darker">Financial Decision Simulator</h1>
+            <p className="text-fintwin-green-dark">Test different financial decisions before making them</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-1 space-y-6">
-              <Card>
+          <Tabs defaultValue="decision" className="space-y-8">
+            <TabsList className="bg-fintwin-green-lightest border border-fintwin-green-light/20 p-1">
+              <TabsTrigger 
+                value="decision"
+                className="data-[state=active]:bg-white data-[state=active]:text-fintwin-green-darker"
+              >
+                Decision Simulator
+              </TabsTrigger>
+              <TabsTrigger 
+                value="historical"
+                className="data-[state=active]:bg-white data-[state=active]:text-fintwin-green-darker"
+              >
+                Past Decisions Analysis
+              </TabsTrigger>
+              <TabsTrigger 
+                value="templates"
+                className="data-[state=active]:bg-white data-[state=active]:text-fintwin-green-darker"
+              >
+                Templates
+              </TabsTrigger>
+            </Tabs>
+
+            <TabsContent value="decision" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-1 space-y-6">
+                  <Card className="border-fintwin-green-medium/20 shadow-md">
+                    <CardHeader>
+                      <CardTitle className="text-fintwin-green-darker">Your Financial Profile</CardTitle>
+                      <CardDescription>
+                        Simulation is based on this information
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-fintwin-green-dark">Monthly Income</span>
+                        <span className="font-medium">$5,800</span>
+                      </div>
+                      <div className="h-px bg-fintwin-green-light/20"></div>
+                      
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-fintwin-green-dark">Essential Expenses</span>
+                        <span className="font-medium">$3,200</span>
+                      </div>
+                      <div className="h-px bg-fintwin-green-light/20"></div>
+                      
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-fintwin-green-dark">Discretionary Spending</span>
+                        <span className="font-medium">$1,500</span>
+                      </div>
+                      <div className="h-px bg-fintwin-green-light/20"></div>
+                      
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-fintwin-green-dark">Monthly Savings</span>
+                        <span className="font-medium">$1,100</span>
+                      </div>
+                      <div className="h-px bg-fintwin-green-light/20"></div>
+                      
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-fintwin-green-dark">Emergency Fund</span>
+                        <span className="font-medium">$7,500</span>
+                      </div>
+                      <div className="h-px bg-fintwin-green-light/20"></div>
+                      
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-fintwin-green-dark">Total Debt</span>
+                        <span className="font-medium">$18,400</span>
+                      </div>
+                      <div className="h-px bg-fintwin-green-light/20"></div>
+                      
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-fintwin-green-dark">Financial Health Score</span>
+                        <span className="font-medium text-amber-500">72/100</span>
+                      </div>
+                      
+                      <Button variant="outline" className="w-full mt-2 border-fintwin-green-medium/30 text-fintwin-green-dark hover:bg-fintwin-green-lightest">
+                        Update Financial Profile
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-fintwin-green-medium/20 shadow-md">
+                    <CardHeader>
+                      <CardTitle className="text-fintwin-green-darker">Saved Scenarios</CardTitle>
+                      <CardDescription>Previously simulated financial decisions</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <Button variant="outline" className="w-full justify-between border-fintwin-green-medium/30 text-fintwin-green-dark hover:bg-fintwin-green-lightest">
+                        Home Renovation
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" className="w-full justify-between border-fintwin-green-medium/30 text-fintwin-green-dark hover:bg-fintwin-green-lightest">
+                        New Car Purchase
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" className="w-full justify-between border-fintwin-green-medium/30 text-fintwin-green-dark hover:bg-fintwin-green-lightest">
+                        Job Change
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" className="w-full justify-between border-fintwin-green-medium/30 text-fintwin-green-dark hover:bg-fintwin-green-lightest">
+                        Debt Consolidation
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="lg:col-span-2">
+                  <ScenarioSimulator />
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="historical" className="space-y-6">
+              <Card className="border-fintwin-green-medium/20 shadow-md">
                 <CardHeader>
-                  <CardTitle>Simulation Parameters</CardTitle>
-                  <CardDescription>Adjust these values to see how they affect your financial future</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="income" className="flex items-center">
-                        <DollarSign className="h-4 w-4 mr-1" />
-                        Monthly Income
-                      </Label>
-                      <div className="font-medium">${income}</div>
-                    </div>
-                    <Slider
-                      id="income"
-                      min={1000}
-                      max={15000}
-                      step={100}
-                      value={[income]}
-                      onValueChange={(value) => setIncome(value[0])}
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>$1,000</span>
-                      <span>$15,000</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="expenses" className="flex items-center">
-                        <DollarSign className="h-4 w-4 mr-1" />
-                        Monthly Expenses
-                      </Label>
-                      <div className="font-medium">${expenses}</div>
-                    </div>
-                    <Slider
-                      id="expenses"
-                      min={500}
-                      max={10000}
-                      step={100}
-                      value={[expenses]}
-                      onValueChange={(value) => setExpenses(value[0])}
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>$500</span>
-                      <span>$10,000</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="investments" className="flex items-center">
-                        <DollarSign className="h-4 w-4 mr-1" />
-                        Monthly Investments
-                      </Label>
-                      <div className="font-medium">${investments}</div>
-                    </div>
-                    <Slider
-                      id="investments"
-                      min={0}
-                      max={5000}
-                      step={50}
-                      value={[investments]}
-                      onValueChange={(value) => setInvestments(value[0])}
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>$0</span>
-                      <span>$5,000</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="savings-rate" className="flex items-center">
-                        <Percent className="h-4 w-4 mr-1" />
-                        Savings Rate
-                      </Label>
-                      <div className="font-medium">{savingsRate}%</div>
-                    </div>
-                    <Slider
-                      id="savings-rate"
-                      min={0}
-                      max={50}
-                      step={1}
-                      value={[savingsRate]}
-                      onValueChange={(value) => setSavingsRate(value[0])}
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>0%</span>
-                      <span>50%</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="time-horizon">Time Horizon (years)</Label>
-                      <div className="font-medium">{timeHorizon} years</div>
-                    </div>
-                    <Slider
-                      id="time-horizon"
-                      min={1}
-                      max={30}
-                      step={1}
-                      value={[timeHorizon]}
-                      onValueChange={(value) => setTimeHorizon(value[0])}
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>1 year</span>
-                      <span>30 years</span>
-                    </div>
-                  </div>
-
-                  <Button className="w-full">
-                    Run Simulation
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Saved Templates</CardTitle>
-                  <CardDescription>Quick start with common financial goals</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Button variant="outline" className="w-full justify-between">
-                    Home Purchase
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" className="w-full justify-between">
-                    Retirement Planning
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" className="w-full justify-between">
-                    Debt Freedom
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" className="w-full justify-between">
-                    College Fund
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="lg:col-span-2 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Simulation Results</CardTitle>
-                  <CardDescription>Based on your current parameters</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <Tabs defaultValue="overview">
-                    <TabsList className="grid w-full grid-cols-3">
-                      <TabsTrigger value="overview">Overview</TabsTrigger>
-                      <TabsTrigger value="details">Detailed View</TabsTrigger>
-                      <TabsTrigger value="compare">Compare</TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="overview" className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                        <div className="bg-card border p-4 rounded-lg">
-                          <div className="text-sm text-muted-foreground">Net Worth ({timeHorizon} years)</div>
-                          <div className="text-2xl font-bold mt-1">$347,580</div>
-                          <div className="text-xs text-green-500 flex items-center mt-1">
-                            <LineChart className="h-3 w-3 mr-1" /> +218% growth
-                          </div>
-                        </div>
-                        <div className="bg-card border p-4 rounded-lg">
-                          <div className="text-sm text-muted-foreground">Monthly Passive Income</div>
-                          <div className="text-2xl font-bold mt-1">$1,450</div>
-                          <div className="text-xs text-green-500 mt-1">29% of current expenses</div>
-                        </div>
-                        <div className="bg-card border p-4 rounded-lg">
-                          <div className="text-sm text-muted-foreground">Financial Independence</div>
-                          <div className="text-2xl font-bold mt-1">17.4 years</div>
-                          <div className="text-xs text-muted-foreground mt-1">at current rate</div>
-                        </div>
-                      </div>
-
-                      <div className="border rounded-lg p-4">
-                        <div className="h-72 bg-muted rounded flex items-center justify-center">
-                          <div className="text-muted-foreground">Net Worth Projection Chart</div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="border rounded-lg p-4">
-                          <h3 className="text-sm font-semibold mb-4">Projected Asset Allocation</h3>
-                          <div className="h-48 bg-muted rounded flex items-center justify-center">
-                            <PieChart className="h-6 w-6 text-muted-foreground" />
-                          </div>
-                        </div>
-                        <div className="border rounded-lg p-4">
-                          <h3 className="text-sm font-semibold mb-4">Income Sources</h3>
-                          <div className="h-48 bg-muted rounded flex items-center justify-center">
-                            <PieChart className="h-6 w-6 text-muted-foreground" />
-                          </div>
-                        </div>
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="details">
-                      <div className="h-96 bg-muted rounded flex items-center justify-center mt-4">
-                        <div className="text-muted-foreground">Detailed Financial Projection View</div>
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="compare">
-                      <div className="h-96 bg-muted rounded flex items-center justify-center mt-4">
-                        <div className="text-muted-foreground">Scenario Comparison View</div>
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recommended Adjustments</CardTitle>
-                  <CardDescription>Suggestions to improve your financial outcomes</CardDescription>
+                  <CardTitle className="text-fintwin-green-darker">Past Financial Decisions Analysis</CardTitle>
+                  <CardDescription>
+                    Review the impact of your previous financial decisions
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="p-4 border rounded-lg bg-green-50 dark:bg-green-900/10">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="bg-green-100 dark:bg-green-800 p-1.5 rounded-full">
-                          <LineChart className="h-4 w-4 text-green-500" />
-                        </div>
-                        <h3 className="font-medium">Increase savings rate to 20%</h3>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Increasing your savings rate by just 5% could add $87,500 to your net worth over {timeHorizon} years and reduce your path to financial independence by 2.3 years.
-                      </p>
-                      <Button size="sm" variant="outline">Apply This Change</Button>
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-fintwin-green-darker">Recent Decisions</h3>
+                      <Button variant="outline" size="sm" className="border-fintwin-green-medium/30 text-fintwin-green-dark hover:bg-fintwin-green-lightest">
+                        <History className="h-4 w-4 mr-2" /> View All
+                      </Button>
                     </div>
-
-                    <div className="p-4 border rounded-lg bg-blue-50 dark:bg-blue-900/10">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="bg-blue-100 dark:bg-blue-800 p-1.5 rounded-full">
-                          <LineChart className="h-4 w-4 text-blue-500" />
+                    
+                    <div className="space-y-4">
+                      <div className="p-4 rounded-lg border border-fintwin-green-light/20 space-y-3">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center">
+                            <div className="h-10 w-10 rounded-full bg-fintwin-green-lightest flex items-center justify-center mr-3">
+                              <Landmark className="h-5 w-5 text-fintwin-green-dark" />
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-fintwin-green-darker">Apartment Rental Upgrade</h4>
+                              <p className="text-sm text-gray-500">December 2024</p>
+                            </div>
+                          </div>
+                          <div className="px-3 py-1 rounded-full text-sm font-medium text-amber-500 bg-amber-50">
+                            Moderate Impact
+                          </div>
                         </div>
-                        <h3 className="font-medium">Optimize investment allocation</h3>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Adjusting your investment allocation based on your time horizon could potentially increase returns by 1.2% annually, adding $54,300 to your net worth.
-                      </p>
-                      <Button size="sm" variant="outline">Apply This Change</Button>
-                    </div>
-
-                    <div className="p-4 border rounded-lg bg-orange-50 dark:bg-orange-900/10">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="bg-orange-100 dark:bg-orange-800 p-1.5 rounded-full">
-                          <LineChart className="h-4 w-4 text-orange-500" />
+                        
+                        <div className="grid grid-cols-3 gap-4 mt-3">
+                          <div>
+                            <p className="text-xs text-gray-500">Monthly Cost</p>
+                            <p className="font-medium">+$450</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500">Savings Impact</p>
+                            <p className="font-medium text-amber-500">-38%</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500">Satisfaction</p>
+                            <p className="font-medium text-green-500">High</p>
+                          </div>
                         </div>
-                        <h3 className="font-medium">Reduce monthly expenses by 10%</h3>
+                        
+                        <Button variant="outline" size="sm" className="w-full mt-2 border-fintwin-green-medium/30 text-fintwin-green-dark hover:bg-fintwin-green-lightest">
+                          View Detailed Analysis
+                        </Button>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Finding ways to cut $350 from your monthly expenses could dramatically improve your financial situation, adding $126,000 to your net worth over time.
-                      </p>
-                      <Button size="sm" variant="outline">Apply This Change</Button>
+                      
+                      <div className="p-4 rounded-lg border border-fintwin-green-light/20 space-y-3">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center">
+                            <div className="h-10 w-10 rounded-full bg-fintwin-green-lightest flex items-center justify-center mr-3">
+                              <LineChart className="h-5 w-5 text-fintwin-green-dark" />
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-fintwin-green-darker">Investment Portfolio Rebalance</h4>
+                              <p className="text-sm text-gray-500">October 2024</p>
+                            </div>
+                          </div>
+                          <div className="px-3 py-1 rounded-full text-sm font-medium text-green-500 bg-green-50">
+                            Positive Impact
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-3 gap-4 mt-3">
+                          <div>
+                            <p className="text-xs text-gray-500">One-time Cost</p>
+                            <p className="font-medium">$0</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500">Return Improvement</p>
+                            <p className="font-medium text-green-500">+2.3%</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500">Risk Level</p>
+                            <p className="font-medium">Moderate</p>
+                          </div>
+                        </div>
+                        
+                        <Button variant="outline" size="sm" className="w-full mt-2 border-fintwin-green-medium/30 text-fintwin-green-dark hover:bg-fintwin-green-lightest">
+                          View Detailed Analysis
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            </div>
-          </div>
+            </TabsContent>
+
+            <TabsContent value="templates" className="space-y-6">
+              <Card className="border-fintwin-green-medium/20 shadow-md">
+                <CardHeader>
+                  <CardTitle className="text-fintwin-green-darker">Decision Templates</CardTitle>
+                  <CardDescription>
+                    Common financial scenarios with pre-built simulations
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-lg border border-fintwin-green-light/20 hover:border-fintwin-green-medium/40 transition-colors cursor-pointer">
+                      <h4 className="font-medium text-fintwin-green-darker mb-2">Home Purchase</h4>
+                      <p className="text-sm text-gray-600 mb-3">
+                        Simulate the impact of buying a home, including mortgage payments, maintenance costs, and tax benefits.
+                      </p>
+                      <Button variant="outline" size="sm" className="border-fintwin-green-medium/30 text-fintwin-green-dark hover:bg-fintwin-green-lightest">
+                        Use Template
+                      </Button>
+                    </div>
+                    
+                    <div className="p-4 rounded-lg border border-fintwin-green-light/20 hover:border-fintwin-green-medium/40 transition-colors cursor-pointer">
+                      <h4 className="font-medium text-fintwin-green-darker mb-2">Job Change</h4>
+                      <p className="text-sm text-gray-600 mb-3">
+                        Analyze the financial effects of changing jobs, including salary adjustments, benefits changes, and relocation costs.
+                      </p>
+                      <Button variant="outline" size="sm" className="border-fintwin-green-medium/30 text-fintwin-green-dark hover:bg-fintwin-green-lightest">
+                        Use Template
+                      </Button>
+                    </div>
+                    
+                    <div className="p-4 rounded-lg border border-fintwin-green-light/20 hover:border-fintwin-green-medium/40 transition-colors cursor-pointer">
+                      <h4 className="font-medium text-fintwin-green-darker mb-2">Major Purchase</h4>
+                      <p className="text-sm text-gray-600 mb-3">
+                        Evaluate the impact of a significant purchase like a vehicle, appliance, or electronics on your overall financial health.
+                      </p>
+                      <Button variant="outline" size="sm" className="border-fintwin-green-medium/30 text-fintwin-green-dark hover:bg-fintwin-green-lightest">
+                        Use Template
+                      </Button>
+                    </div>
+                    
+                    <div className="p-4 rounded-lg border border-fintwin-green-light/20 hover:border-fintwin-green-medium/40 transition-colors cursor-pointer">
+                      <h4 className="font-medium text-fintwin-green-darker mb-2">Debt Consolidation</h4>
+                      <p className="text-sm text-gray-600 mb-3">
+                        Compare different approaches to consolidating and paying off debt, including timeline and interest savings.
+                      </p>
+                      <Button variant="outline" size="sm" className="border-fintwin-green-medium/30 text-fintwin-green-dark hover:bg-fintwin-green-lightest">
+                        Use Template
+                      </Button>
+                    </div>
+                    
+                    <div className="p-4 rounded-lg border border-fintwin-green-light/20 hover:border-fintwin-green-medium/40 transition-colors cursor-pointer">
+                      <h4 className="font-medium text-fintwin-green-darker mb-2">Expense Reduction</h4>
+                      <p className="text-sm text-gray-600 mb-3">
+                        Model the long-term impact of cutting specific expenses and redirecting those funds to savings or debt reduction.
+                      </p>
+                      <Button variant="outline" size="sm" className="border-fintwin-green-medium/30 text-fintwin-green-dark hover:bg-fintwin-green-lightest">
+                        Use Template
+                      </Button>
+                    </div>
+                    
+                    <div className="p-4 rounded-lg border border-fintwin-green-light/20 hover:border-fintwin-green-medium/40 transition-colors cursor-pointer">
+                      <h4 className="font-medium text-fintwin-green-darker mb-2">Education Funding</h4>
+                      <p className="text-sm text-gray-600 mb-3">
+                        Plan for education expenses with simulations of different saving and funding strategies, including loans.
+                      </p>
+                      <Button variant="outline" size="sm" className="border-fintwin-green-medium/30 text-fintwin-green-dark hover:bg-fintwin-green-lightest">
+                        Use Template
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
     </div>
