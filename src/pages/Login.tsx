@@ -1,18 +1,30 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { toast } from '@/components/ui/use-toast';
 
 const Login = () => {
+  const navigate = useNavigate();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
+    // In a real app, this would verify credentials
     console.log("Login attempted");
+    
+    // Show success toast
+    toast({
+      title: "Login successful",
+      description: "Welcome back to FinTwin!",
+    });
+    
+    // Redirect to dashboard
+    navigate('/dashboard');
   };
 
   return (

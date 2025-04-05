@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,12 +8,24 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from '@/components/ui/checkbox';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { toast } from '@/components/ui/use-toast';
 
 const Signup = () => {
+  const navigate = useNavigate();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle signup logic here
+    // In a real app, this would create a new account
     console.log("Signup attempted");
+    
+    // Show success toast
+    toast({
+      title: "Account created!",
+      description: "Welcome to FinTwin! Your financial journey begins now.",
+    });
+    
+    // Redirect to dashboard
+    navigate('/dashboard');
   };
 
   return (
