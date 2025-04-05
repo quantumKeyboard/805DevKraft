@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Simulator from "./pages/Simulator";
 import Predictions from "./pages/Predictions";
 import Learning from "./pages/Learning";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/simulator" element={<Simulator />} />
           <Route path="/predictions" element={<Predictions />} />
           <Route path="/learning" element={<Learning />} />
+          <Route path="/profile" element={<Profile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
