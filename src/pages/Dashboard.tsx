@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BarChart3, Brain, ChevronDown, Clock, CoinsIcon, LineChart, Sliders, TrendingUp, Zap } from 'lucide-react';
+import { ArrowRight, BarChart3, Bell, Brain, ChevronDown, Clock, CoinsIcon, LineChart, Sliders, TrendingUp, User, Zap } from 'lucide-react';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Link } from 'react-router-dom';

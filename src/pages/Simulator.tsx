@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowRight, Bell, ChevronDown, CoinsIcon, DollarSign, LineChart, Percentage, PieChart, User } from 'lucide-react';
+import { ArrowRight, Bell, ChevronDown, CoinsIcon, DollarSign, LineChart, Percent, PieChart, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Simulator = () => {
@@ -18,7 +17,6 @@ const Simulator = () => {
   
   return (
     <div className="min-h-screen bg-muted/30">
-      {/* Header */}
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
         <div className="container flex items-center justify-between h-16">
           <div className="flex items-center gap-4">
@@ -49,17 +47,14 @@ const Simulator = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container py-8">
         <div className="flex flex-col gap-8">
-          {/* Page Heading */}
           <div>
             <h1 className="text-3xl font-bold">Financial Twin Simulator</h1>
             <p className="text-muted-foreground">Test different scenarios to visualize your financial future</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Simulator Controls */}
             <div className="lg:col-span-1 space-y-6">
               <Card>
                 <CardHeader>
@@ -67,7 +62,6 @@ const Simulator = () => {
                   <CardDescription>Adjust these values to see how they affect your financial future</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* Income */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="income" className="flex items-center">
@@ -90,7 +84,6 @@ const Simulator = () => {
                     </div>
                   </div>
 
-                  {/* Expenses */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="expenses" className="flex items-center">
@@ -113,7 +106,6 @@ const Simulator = () => {
                     </div>
                   </div>
 
-                  {/* Investments */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="investments" className="flex items-center">
@@ -136,11 +128,10 @@ const Simulator = () => {
                     </div>
                   </div>
 
-                  {/* Savings Rate */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="savings-rate" className="flex items-center">
-                        <Percentage className="h-4 w-4 mr-1" />
+                        <Percent className="h-4 w-4 mr-1" />
                         Savings Rate
                       </Label>
                       <div className="font-medium">{savingsRate}%</div>
@@ -159,7 +150,6 @@ const Simulator = () => {
                     </div>
                   </div>
 
-                  {/* Time Horizon */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="time-horizon">Time Horizon (years)</Label>
@@ -212,7 +202,6 @@ const Simulator = () => {
               </Card>
             </div>
 
-            {/* Simulation Results */}
             <div className="lg:col-span-2 space-y-6">
               <Card>
                 <CardHeader>
@@ -228,7 +217,6 @@ const Simulator = () => {
                     </TabsList>
                     
                     <TabsContent value="overview" className="space-y-6">
-                      {/* Results Summary */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                         <div className="bg-card border p-4 rounded-lg">
                           <div className="text-sm text-muted-foreground">Net Worth ({timeHorizon} years)</div>
@@ -249,14 +237,12 @@ const Simulator = () => {
                         </div>
                       </div>
 
-                      {/* Results Chart */}
                       <div className="border rounded-lg p-4">
                         <div className="h-72 bg-muted rounded flex items-center justify-center">
                           <div className="text-muted-foreground">Net Worth Projection Chart</div>
                         </div>
                       </div>
 
-                      {/* Asset Allocation */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border rounded-lg p-4">
                           <h3 className="text-sm font-semibold mb-4">Projected Asset Allocation</h3>
