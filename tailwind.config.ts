@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,41 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+                // FinTwin specific colors
+                fintwin: {
+                    blue: {
+                        light: '#4299E1',
+                        DEFAULT: '#3182CE',
+                        dark: '#2C5282'
+                    },
+                    teal: {
+                        light: '#4FD1C5',
+                        DEFAULT: '#38B2AC',
+                        dark: '#285E61'
+                    },
+                    green: {
+                        light: '#68D391',
+                        DEFAULT: '#48BB78',
+                        dark: '#276749'
+                    },
+                    orange: {
+                        light: '#F6AD55',
+                        DEFAULT: '#ED8936',
+                        dark: '#C05621'
+                    },
+                    gray: {
+                        100: '#F7FAFC',
+                        200: '#EDF2F7',
+                        300: '#E2E8F0',
+                        400: '#CBD5E0',
+                        500: '#A0AEC0',
+                        600: '#718096',
+                        700: '#4A5568',
+                        800: '#2D3748',
+                        900: '#1A202C',
+                    }
+                }
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,11 +119,38 @@ export default {
 					to: {
 						height: '0'
 					}
-				}
+				},
+                'fade-in': {
+                    '0%': {
+                        opacity: '0',
+                        transform: 'translateY(10px)'
+                    },
+                    '100%': {
+                        opacity: '1',
+                        transform: 'translateY(0)'
+                    }
+                },
+                'scale-in': {
+                    '0%': {
+                        opacity: '0',
+                        transform: 'scale(0.95)'
+                    },
+                    '100%': {
+                        opacity: '1',
+                        transform: 'scale(1)'
+                    }
+                },
+                'slide-in-right': {
+                    '0%': { transform: 'translateX(100%)' },
+                    '100%': { transform: 'translateX(0)' }
+                },
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+                'fade-in': 'fade-in 0.3s ease-out',
+                'scale-in': 'scale-in 0.2s ease-out',
+                'slide-in-right': 'slide-in-right 0.3s ease-out',
 			}
 		}
 	},
