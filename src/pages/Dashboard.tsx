@@ -1,18 +1,268 @@
-
 import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, BarChart3, Bell, Brain, ChevronDown, Clock, CoinsIcon, LineChart, Sliders, TrendingUp, User, Zap } from 'lucide-react';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Link } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { useFinancial } from '@/context/FinancialContext';
+import { ArrowRight, BarChart3, Brain, CoinsIcon, LineChart, TrendingUp, PieChart, Wallet, CreditCard, PiggyBank, Target, Shield, Clock, User, Briefcase, Users } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  LineChart as RechartsLineChart,
+  Line,
+  AreaChart,
+  Area,
+} from 'recharts';
 
 const Dashboard = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const { financialData } = useFinancial();
   const [activeTab, setActiveTab] = useState("overview");
-  const [financialHealth, setFinancialHealth] = useState(78);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    income: true,
+    expenses: false,
+    savings: false,
+    debt: false,
+    goals: false,
+    profile: false,
+  });
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  // Calculate financial health score based on collected data
+  const calculateFinancialHealth = () => {
+    const income = parseFloat(financialData.monthlyIncome) || 0;
+    const expenses = parseFloat(financialData.monthlyExpenses) || 0;
+    const savings = parseFloat(financialData.savings) || 0;
+    const debt = parseFloat(financialData.debt) || 0;
+    const emergencyFund = parseFloat(financialData.emergencyFund) || 0;
+    const retirementSavings = parseFloat(financialData.retirementSavings) || 0;
+    const investmentAccounts = parseFloat(financialData.investmentAccounts) || 0;
+
+    // Basic scoring logic (can be enhanced)
+    let score = 0;
+    
+    // Savings rate (target: 20% of income)
+    const savingsRate = (savings / income) * 100;
+    score += Math.min(savingsRate / 20 * 15, 15);
+
+    // Debt-to-income ratio (target: < 30%)
+    const debtToIncome = (debt / income) * 100;
+    score += Math.max(15 - (debtToIncome / 30 * 15), 0);
+
+    // Emergency fund (target: 3 months of expenses)
+    const emergencyFundRatio = emergencyFund / (expenses * 3);
+    score += Math.min(emergencyFundRatio * 15, 15);
+
+    // Monthly surplus
+    const monthlySurplus = income - expenses;
+    const surplusRatio = (monthlySurplus / income) * 100;
+    score += Math.min(surplusRatio / 20 * 15, 15);
+
+    // Retirement savings (target: 1x annual income by 30, 3x by 40, etc.)
+    const age = parseInt(financialData.age) || 0;
+    let retirementTarget = 0;
+    if (age < 30) retirementTarget = income * 12;
+    else if (age < 40) retirementTarget = income * 12 * 3;
+    else if (age < 50) retirementTarget = income * 12 * 6;
+    else if (age < 60) retirementTarget = income * 12 * 8;
+    else retirementTarget = income * 12 * 10;
+    
+    const retirementRatio = retirementSavings / retirementTarget;
+    score += Math.min(retirementRatio * 15, 15);
+
+    // Investment diversification
+    const investmentTypes = financialData.investmentTypes || [];
+    const diversificationScore = Math.min(investmentTypes.length * 3, 15);
+    score += diversificationScore;
+
+    // Financial habits
+    let habitsScore = 0;
+    if (financialData.budgetingFrequency === 'monthly' || financialData.budgetingFrequency === 'weekly') habitsScore += 5;
+    if (financialData.savingFrequency === 'monthly' || financialData.savingFrequency === 'weekly') habitsScore += 5;
+    if (financialData.investmentFrequency === 'monthly' || financialData.investmentFrequency === 'quarterly') habitsScore += 5;
+    score += habitsScore;
+
+    return Math.round(score);
+  };
+
+  const financialHealth = calculateFinancialHealth();
+
+  // Calculate expense percentages
+  const calculateExpensePercentages = () => {
+    const totalExpenses = parseFloat(financialData.monthlyExpenses) || 0;
+    if (totalExpenses === 0) return {};
+
+    const housing = parseFloat(financialData.housingExpenses) || 0;
+    const transportation = parseFloat(financialData.transportationExpenses) || 0;
+    const food = parseFloat(financialData.foodExpenses) || 0;
+    const utilities = parseFloat(financialData.utilitiesExpenses) || 0;
+    const entertainment = parseFloat(financialData.entertainmentExpenses) || 0;
+    const other = parseFloat(financialData.otherExpenses) || 0;
+
+    return {
+      housing: Math.round((housing / totalExpenses) * 100),
+      transportation: Math.round((transportation / totalExpenses) * 100),
+      food: Math.round((food / totalExpenses) * 100),
+      utilities: Math.round((utilities / totalExpenses) * 100),
+      entertainment: Math.round((entertainment / totalExpenses) * 100),
+      other: Math.round((other / totalExpenses) * 100),
+    };
+  };
+
+  const expensePercentages = calculateExpensePercentages();
+
+  // Calculate debt breakdown
+  const calculateDebtBreakdown = () => {
+    const totalDebt = parseFloat(financialData.debt) || 0;
+    if (totalDebt === 0) return {};
+
+    const mortgage = parseFloat(financialData.mortgageDebt) || 0;
+    const car = parseFloat(financialData.carDebt) || 0;
+    const creditCard = parseFloat(financialData.creditCardDebt) || 0;
+    const studentLoan = parseFloat(financialData.studentLoanDebt) || 0;
+    const other = parseFloat(financialData.otherDebt) || 0;
+
+    return {
+      mortgage: Math.round((mortgage / totalDebt) * 100),
+      car: Math.round((car / totalDebt) * 100),
+      creditCard: Math.round((creditCard / totalDebt) * 100),
+      studentLoan: Math.round((studentLoan / totalDebt) * 100),
+      other: Math.round((other / totalDebt) * 100),
+    };
+  };
+
+  const debtBreakdown = calculateDebtBreakdown();
+
+  // Chart Colors
+  const CHART_COLORS = {
+    primary: '#2563eb',
+    secondary: '#7c3aed',
+    success: '#16a34a',
+    warning: '#ca8a04',
+    danger: '#dc2626',
+    muted: '#94a3b8',
+    background: '#f8fafc',
+  };
+
+  // Prepare expense data for charts
+  const prepareExpenseData = () => {
+    const totalExpenses = parseFloat(financialData.monthlyExpenses) || 0;
+    return [
+      { name: 'Housing', value: parseFloat(financialData.housingExpenses) || 0, percentage: expensePercentages.housing || 0 },
+      { name: 'Transportation', value: parseFloat(financialData.transportationExpenses) || 0, percentage: expensePercentages.transportation || 0 },
+      { name: 'Food', value: parseFloat(financialData.foodExpenses) || 0, percentage: expensePercentages.food || 0 },
+      { name: 'Utilities', value: parseFloat(financialData.utilitiesExpenses) || 0, percentage: expensePercentages.utilities || 0 },
+      { name: 'Entertainment', value: parseFloat(financialData.entertainmentExpenses) || 0, percentage: expensePercentages.entertainment || 0 },
+      { name: 'Other', value: parseFloat(financialData.otherExpenses) || 0, percentage: expensePercentages.other || 0 },
+    ];
+  };
+
+  // Prepare debt data for charts
+  const prepareDebtData = () => {
+    const totalDebt = parseFloat(financialData.debt) || 0;
+    return [
+      { name: 'Mortgage', value: parseFloat(financialData.mortgageDebt) || 0, percentage: debtBreakdown.mortgage || 0 },
+      { name: 'Car Loan', value: parseFloat(financialData.carDebt) || 0, percentage: debtBreakdown.car || 0 },
+      { name: 'Credit Card', value: parseFloat(financialData.creditCardDebt) || 0, percentage: debtBreakdown.creditCard || 0 },
+      { name: 'Student Loan', value: parseFloat(financialData.studentLoanDebt) || 0, percentage: debtBreakdown.studentLoan || 0 },
+      { name: 'Other', value: parseFloat(financialData.otherDebt) || 0, percentage: debtBreakdown.other || 0 },
+    ];
+  };
+
+  // Prepare investment data for charts
+  const prepareInvestmentData = () => {
+    return [
+      { name: 'Emergency Fund', value: parseFloat(financialData.emergencyFund) || 0 },
+      { name: 'Retirement', value: parseFloat(financialData.retirementSavings) || 0 },
+      { name: 'Investment Accounts', value: parseFloat(financialData.investmentAccounts) || 0 },
+    ];
+  };
+
+  // Prepare monthly cash flow data
+  const prepareCashFlowData = () => {
+    const income = parseFloat(financialData.monthlyIncome) || 0;
+    const expenses = parseFloat(financialData.monthlyExpenses) || 0;
+    const surplus = income - expenses;
+    return [
+      { name: 'Income', value: income },
+      { name: 'Expenses', value: expenses },
+      { name: 'Surplus', value: surplus },
+    ];
+  };
+
+  // Custom tooltip for charts
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-background border rounded-lg shadow-lg p-3">
+          <p className="font-medium">{label}</p>
+          {payload.map((entry: any, index: number) => (
+            <p key={index} style={{ color: entry.color }}>
+              {entry.name}: ${entry.value.toLocaleString()}
+              {entry.payload.percentage && ` (${entry.payload.percentage}%)`}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Get financial goal description
+  const getFinancialGoalDescription = () => {
+    switch (financialData.financialGoal) {
+      case 'emergency':
+        return 'Building your emergency fund for financial security';
+      case 'debt':
+        return 'Paying off debt to improve your financial health';
+      case 'investment':
+        return 'Starting your investment journey for long-term growth';
+      case 'retirement':
+        return 'Planning for a secure retirement future';
+      case 'home':
+        return 'Saving for a home purchase';
+      case 'education':
+        return 'Funding education or skill development';
+      default:
+        return 'Setting financial goals for your future';
+    }
+  };
+
+  // Get risk profile description
+  const getRiskProfileDescription = () => {
+    const riskTolerance = financialData.riskTolerance || '';
+    const investmentExperience = financialData.investmentExperience || '';
+    const financialKnowledge = financialData.financialKnowledge || '';
+    
+    let description = `You have a ${riskTolerance} risk tolerance and ${investmentExperience} investment experience. `;
+    
+    if (financialKnowledge === 'basic') {
+      description += 'You may benefit from more financial education resources.';
+    } else if (financialKnowledge === 'intermediate') {
+      description += 'You have a good foundation of financial knowledge.';
+    } else if (financialKnowledge === 'advanced') {
+      description += 'You have advanced financial knowledge and can handle complex strategies.';
+    }
+    
+    return description;
+  };
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -35,13 +285,7 @@ const Dashboard = () => {
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm">
               <CoinsIcon className="h-4 w-4 mr-2" />
-              <span>$24,500</span>
-            </Button>
-            <Button variant="outline" size="icon">
-              <Bell className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon">
-              <User className="h-4 w-4" />
+              <span>${parseFloat(financialData.savings).toLocaleString()}</span>
             </Button>
           </div>
         </div>
@@ -52,417 +296,574 @@ const Dashboard = () => {
         <div className="flex flex-col gap-8">
           {/* Dashboard Heading */}
           <div>
-            <h1 className="text-3xl font-bold">Welcome back, Alex</h1>
-            <p className="text-muted-foreground">Here's your financial snapshot for today</p>
+            <h1 className="text-3xl font-bold">Welcome to Your Financial Dashboard</h1>
+            <p className="text-muted-foreground">Here's your comprehensive financial snapshot</p>
           </div>
 
-          {/* Mode Selector */}
-          <Tabs defaultValue="overview" className="w-full" onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-2 md:w-[400px]">
-              <TabsTrigger value="overview">Predictor Mode</TabsTrigger>
-              <TabsTrigger value="simulator">Twin Mode</TabsTrigger>
+          {/* Tabs Navigation */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid grid-cols-3 md:grid-cols-5 w-full">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="income">Income</TabsTrigger>
+              <TabsTrigger value="expenses">Expenses</TabsTrigger>
+              <TabsTrigger value="investments">Investments</TabsTrigger>
+              <TabsTrigger value="goals">Goals</TabsTrigger>
             </TabsList>
 
-            {/* Predictor Mode Content */}
+            {/* Overview Tab */}
             <TabsContent value="overview" className="space-y-6">
               {/* Financial Health Score */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="col-span-1 md:col-span-1">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-xl flex items-center justify-between">
-                      Financial Health
-                      <HoverCard>
-                        <HoverCardTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-6 w-6">
-                            <ChevronDown className="h-4 w-4" />
-                          </Button>
-                        </HoverCardTrigger>
-                        <HoverCardContent className="w-80">
-                          <div className="space-y-2">
-                            <h4 className="text-sm font-semibold">How is this calculated?</h4>
-                            <p className="text-sm">
-                              Your financial health score is based on your savings rate, debt-to-income ratio, emergency fund coverage, and investment diversity.
-                            </p>
-                          </div>
-                        </HoverCardContent>
-                      </HoverCard>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Financial Health Score</CardTitle>
+                  <CardDescription>Based on your current financial data</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="text-center">
+                      <div className="inline-flex items-center justify-center rounded-full border-8 border-fintwin-blue/20 p-8">
+                        <div className="text-4xl font-bold">{financialHealth}</div>
+                      </div>
+                    </div>
+                    <Progress value={financialHealth} className="h-2 w-full" />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <div>Poor</div>
+                      <div>Excellent</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Financial Snapshot with Charts */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Wallet className="h-5 w-5" />
+                      Income & Expenses
                     </CardTitle>
-                    <CardDescription>Based on your current financial data</CardDescription>
+                    <CardDescription>Your monthly cash flow</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="text-center">
-                        <div className="inline-flex items-center justify-center rounded-full border-8 border-fintwin-blue/20 p-8">
-                          <div className="text-4xl font-bold">{financialHealth}</div>
+                      <div className="h-[200px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={prepareCashFlowData()}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Bar dataKey="value" fill={CHART_COLORS.primary} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <div className="text-muted-foreground">Monthly Income</div>
+                          <div className="font-medium">${parseFloat(financialData.monthlyIncome).toLocaleString()}</div>
+                        </div>
+                        <div className="flex justify-between">
+                          <div className="text-muted-foreground">Monthly Expenses</div>
+                          <div className="font-medium">${parseFloat(financialData.monthlyExpenses).toLocaleString()}</div>
+                        </div>
+                        <div className="flex justify-between pt-2 border-t">
+                          <div className="font-medium">Monthly Surplus</div>
+                          <div className="font-medium text-green-600">
+                            ${(parseFloat(financialData.monthlyIncome) - parseFloat(financialData.monthlyExpenses)).toLocaleString()}
+                          </div>
                         </div>
                       </div>
-                      <Progress value={financialHealth} className="h-2 w-full" />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <div>Poor</div>
-                        <div>Excellent</div>
-                      </div>
-                      <Button variant="outline" size="sm" className="w-full">View Details</Button>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="col-span-1 md:col-span-2">
+                <Card>
                   <CardHeader>
-                    <CardTitle>Risk Prediction</CardTitle>
-                    <CardDescription>Potential financial vulnerabilities in next 6 months</CardDescription>
+                    <CardTitle className="flex items-center gap-2">
+                      <PiggyBank className="h-5 w-5" />
+                      Savings & Debt
+                    </CardTitle>
+                    <CardDescription>Your current financial position</CardDescription>
                   </CardHeader>
-                  <CardContent className="pb-2">
+                  <CardContent>
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg">
-                        <div className="flex items-center">
-                          <div className="h-2 w-2 rounded-full bg-yellow-500 mr-2"></div>
-                          <span className="font-medium">Emergency Fund Gap</span>
-                        </div>
-                        <div className="text-sm text-muted-foreground">67% risk</div>
+                      <div className="h-[200px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RechartsPieChart>
+                            <Pie
+                              data={[
+                                { name: 'Savings', value: parseFloat(financialData.savings) || 0 },
+                                { name: 'Debt', value: parseFloat(financialData.debt) || 0 },
+                              ]}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={60}
+                              outerRadius={80}
+                              fill="#8884d8"
+                              paddingAngle={5}
+                              dataKey="value"
+                            >
+                              <Cell fill={CHART_COLORS.success} />
+                              <Cell fill={CHART_COLORS.danger} />
+                            </Pie>
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend />
+                          </RechartsPieChart>
+                        </ResponsiveContainer>
                       </div>
-                      <div className="flex items-center justify-between p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
-                        <div className="flex items-center">
-                          <div className="h-2 w-2 rounded-full bg-red-500 mr-2"></div>
-                          <span className="font-medium">High Debt Exposure</span>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <div className="text-muted-foreground">Total Savings</div>
+                          <div className="font-medium">${parseFloat(financialData.savings).toLocaleString()}</div>
                         </div>
-                        <div className="text-sm text-muted-foreground">89% risk</div>
-                      </div>
-                      <div className="flex items-center justify-between p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
-                        <div className="flex items-center">
-                          <div className="h-2 w-2 rounded-full bg-green-500 mr-2"></div>
-                          <span className="font-medium">Investment Diversity</span>
+                        <div className="flex justify-between">
+                          <div className="text-muted-foreground">Total Debt</div>
+                          <div className="font-medium">${parseFloat(financialData.debt).toLocaleString()}</div>
                         </div>
-                        <div className="text-sm text-muted-foreground">23% risk</div>
+                        <div className="flex justify-between pt-2 border-t">
+                          <div className="font-medium">Net Worth</div>
+                          <div className="font-medium">
+                            ${(parseFloat(financialData.savings) - parseFloat(financialData.debt)).toLocaleString()}
+                          </div>
+                        </div>
                       </div>
-                      <Button variant="outline" className="w-full">View Complete Analysis</Button>
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
-              {/* Future Projections */}
+              {/* Financial Goals */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Future Projections</CardTitle>
-                  <CardDescription>Time machine view of your financial future</CardDescription>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5" />
+                    Your Financial Goal
+                  </CardTitle>
+                  <CardDescription>{getFinancialGoalDescription()}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex flex-wrap gap-4">
-                      <Card className="flex-1 min-w-[250px]">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm font-medium">1 Year Outlook</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex justify-between items-center">
-                            <div className="text-2xl font-bold">$42,800</div>
-                            <div className="text-green-500 flex items-center">
-                              <TrendingUp className="h-4 w-4 mr-1" />
-                              +12%
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="flex-1 min-w-[250px]">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm font-medium">5 Year Outlook</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex justify-between items-center">
-                            <div className="text-2xl font-bold">$94,500</div>
-                            <div className="text-green-500 flex items-center">
-                              <TrendingUp className="h-4 w-4 mr-1" />
-                              +45%
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="flex-1 min-w-[250px]">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm font-medium">10 Year Outlook</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex justify-between items-center">
-                            <div className="text-2xl font-bold">$235,000</div>
-                            <div className="text-green-500 flex items-center">
-                              <TrendingUp className="h-4 w-4 mr-1" />
-                              +110%
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <div className="text-sm text-muted-foreground">Short-Term Goal</div>
+                        <div className="font-medium">{financialData.shortTermGoal || 'Not set'}</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-muted-foreground">Medium-Term Goal</div>
+                        <div className="font-medium">{financialData.mediumTermGoal || 'Not set'}</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-muted-foreground">Long-Term Goal</div>
+                        <div className="font-medium">{financialData.longTermGoal || 'Not set'}</div>
+                      </div>
                     </div>
-                    <div className="w-full h-64 bg-muted rounded-lg flex items-center justify-center">
-                      <div className="text-muted-foreground">Interactive financial projection chart</div>
-                    </div>
-                    <Button>Adjust Projection Variables</Button>
+                    <Button className="w-full">
+                      View Goal Details
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Learning & Action Center */}
+              {/* Quick Actions */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Brain className="h-5 w-5" />
+                      Learning Center
+                    </CardTitle>
+                    <CardDescription>Start your financial education journey</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link to="/learning">Explore Learning Resources</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <LineChart className="h-5 w-5" />
+                      Predictions
+                    </CardTitle>
+                    <CardDescription>View your financial projections</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link to="/predictions">View Predictions</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5" />
+                      Simulator
+                    </CardTitle>
+                    <CardDescription>Test different financial scenarios</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link to="/simulator">Start Simulation</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Income Tab */}
+            <TabsContent value="income" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Personalized Actions</CardTitle>
-                  <CardDescription>Steps to improve your financial health</CardDescription>
+                  <CardTitle className="flex items-center gap-2">
+                    <Wallet className="h-5 w-5" />
+                    Income Overview
+                  </CardTitle>
+                  <CardDescription>Your income sources and patterns</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-semibold">Build Your Emergency Fund</h4>
-                        <CollapsibleTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <ChevronDown className="h-4 w-4" />
-                            <span className="sr-only">Toggle</span>
-                          </Button>
-                        </CollapsibleTrigger>
-                      </div>
-                      <div className="flex justify-between items-center py-2">
-                        <div className="flex items-center">
-                          <div className="h-2 w-2 rounded-full bg-yellow-500 mr-2"></div>
-                          <span className="text-sm text-muted-foreground">Priority: High</span>
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <div className="text-sm text-muted-foreground">Primary Income</div>
+                        <div className="text-2xl font-bold">${parseFloat(financialData.monthlyIncome).toLocaleString()}</div>
+                        <div className="text-sm text-muted-foreground mt-1">
+                          {financialData.incomeSource ? `From ${financialData.incomeSource}` : 'Not specified'}
                         </div>
-                        <div className="text-sm">Potential impact: +12 points</div>
                       </div>
-                      <Progress value={35} className="h-2 w-full" />
-                      <CollapsibleContent className="mt-4 space-y-4">
-                        <p className="text-sm text-muted-foreground">
-                          Your emergency fund covers only 1.2 months of expenses, well below the recommended 3-6 months. 
-                          Setting up automatic transfers of $250/month would reach your target in 8 months.
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          <Button size="sm">Setup Auto-Transfer</Button>
-                          <Button variant="outline" size="sm">Learn More</Button>
+                      <div>
+                        <div className="text-sm text-muted-foreground">Additional Income</div>
+                        <div className="text-2xl font-bold">${parseFloat(financialData.additionalIncome || '0').toLocaleString()}</div>
+                        <div className="text-sm text-muted-foreground mt-1">
+                          {financialData.additionalIncomeSource ? `From ${financialData.additionalIncomeSource}` : 'Not specified'}
                         </div>
-                      </CollapsibleContent>
-                    </Collapsible>
-
-                    <div className="border-t pt-4">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-semibold">Reduce High-Interest Debt</h4>
-                        <Button variant="ghost" size="sm">
-                          <ChevronDown className="h-4 w-4" />
-                        </Button>
                       </div>
-                      <div className="flex justify-between items-center py-2">
-                        <div className="flex items-center">
-                          <div className="h-2 w-2 rounded-full bg-red-500 mr-2"></div>
-                          <span className="text-sm text-muted-foreground">Priority: Critical</span>
-                        </div>
-                        <div className="text-sm">Potential impact: +18 points</div>
-                      </div>
-                      <Progress value={15} className="h-2 w-full" />
                     </div>
-
-                    <div className="border-t pt-4">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-semibold">Diversify Investment Portfolio</h4>
-                        <Button variant="ghost" size="sm">
-                          <ChevronDown className="h-4 w-4" />
-                        </Button>
+                    
+                    <div className="space-y-4">
+                      <div className="flex justify-between">
+                        <div className="text-muted-foreground">Income Frequency</div>
+                        <div className="font-medium capitalize">{financialData.incomeFrequency || 'Not specified'}</div>
                       </div>
-                      <div className="flex justify-between items-center py-2">
-                        <div className="flex items-center">
-                          <div className="h-2 w-2 rounded-full bg-green-500 mr-2"></div>
-                          <span className="text-sm text-muted-foreground">Priority: Medium</span>
+                      <div className="flex justify-between">
+                        <div className="text-muted-foreground">Total Monthly Income</div>
+                        <div className="font-medium">
+                          ${(parseFloat(financialData.monthlyIncome) + parseFloat(financialData.additionalIncome || '0')).toLocaleString()}
                         </div>
-                        <div className="text-sm">Potential impact: +8 points</div>
                       </div>
-                      <Progress value={60} className="h-2 w-full" />
                     </div>
-
-                    <Button className="w-full">View All Recommended Actions</Button>
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            {/* Twin Mode Simulator Content */}
-            <TabsContent value="simulator" className="space-y-6">
+            {/* Expenses Tab */}
+            <TabsContent value="expenses" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Financial Twin Simulator</CardTitle>
-                  <CardDescription>Test different scenarios to see their long-term impact</CardDescription>
+                  <CardTitle className="flex items-center gap-2">
+                    <CreditCard className="h-5 w-5" />
+                    Expense Breakdown
+                  </CardTitle>
+                  <CardDescription>Your monthly expenses by category</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
-                    <div className="bg-muted p-4 rounded-lg space-y-4">
-                      <h3 className="font-semibold">Create New Scenario</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm font-medium">Scenario Name</label>
-                          <input 
-                            type="text" 
-                            placeholder="Early retirement plan" 
-                            className="mt-1 w-full px-3 py-2 bg-background border rounded-md"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium">Time Horizon</label>
-                          <select className="mt-1 w-full px-3 py-2 bg-background border rounded-md">
-                            <option>1 Year</option>
-                            <option>5 Years</option>
-                            <option>10 Years</option>
-                            <option>20 Years</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div className="flex justify-end">
-                        <Button>
-                          Create Scenario
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <div className="text-sm text-muted-foreground">Total Monthly Expenses</div>
+                        <div className="text-2xl font-bold">${parseFloat(financialData.monthlyExpenses).toLocaleString()}</div>
                       </div>
                     </div>
+                    
+                    <div className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RechartsPieChart>
+                          <Pie
+                            data={prepareExpenseData()}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                            outerRadius={120}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {prepareExpenseData().map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={Object.values(CHART_COLORS)[index % Object.keys(CHART_COLORS).length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip content={<CustomTooltip />} />
+                        </RechartsPieChart>
+                      </ResponsiveContainer>
+                    </div>
 
-                    <h3 className="font-semibold">Saved Scenarios</h3>
                     <div className="space-y-4">
-                      {/* Scenario Card */}
-                      <Card>
-                        <CardHeader className="pb-2">
-                          <div className="flex justify-between">
-                            <CardTitle>Home Purchase Plan</CardTitle>
-                            <Button variant="ghost" size="sm">
-                              <Sliders className="h-4 w-4" />
-                            </Button>
+                      {prepareExpenseData().map((expense, index) => (
+                        <div key={expense.name} className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: Object.values(CHART_COLORS)[index % Object.keys(CHART_COLORS).length] }}
+                            />
+                            <div className="text-muted-foreground">{expense.name}</div>
                           </div>
-                          <CardDescription>Last modified: Yesterday</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex flex-wrap gap-4 mb-4">
-                            <div className="flex-1 min-w-[150px]">
-                              <div className="text-xs text-muted-foreground">Monthly Savings</div>
-                              <div className="text-lg font-semibold">$750</div>
-                            </div>
-                            <div className="flex-1 min-w-[150px]">
-                              <div className="text-xs text-muted-foreground">Down Payment</div>
-                              <div className="text-lg font-semibold">$45,000</div>
-                            </div>
-                            <div className="flex-1 min-w-[150px]">
-                              <div className="text-xs text-muted-foreground">Time to Goal</div>
-                              <div className="text-lg font-semibold">4.2 years</div>
-                            </div>
+                          <div className="font-medium">
+                            ${expense.value.toLocaleString()}
+                            <span className="text-muted-foreground ml-2">({expense.percentage}%)</span>
                           </div>
-                          <Button variant="outline" size="sm" className="w-full">
-                            Continue Simulation
-                          </Button>
-                        </CardContent>
-                      </Card>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                      {/* Scenario Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CreditCard className="h-5 w-5" />
+                    Debt Breakdown
+                  </CardTitle>
+                  <CardDescription>Your current debt by category</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <div className="text-sm text-muted-foreground">Total Debt</div>
+                        <div className="text-2xl font-bold">${parseFloat(financialData.debt).toLocaleString()}</div>
+                      </div>
+                    </div>
+                    
+                    <div className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={prepareDebtData()}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" />
+                          <YAxis />
+                          <Tooltip content={<CustomTooltip />} />
+                          <Bar dataKey="value" fill={CHART_COLORS.primary}>
+                            {prepareDebtData().map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={Object.values(CHART_COLORS)[index % Object.keys(CHART_COLORS).length]} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    <div className="space-y-4">
+                      {prepareDebtData().map((debt, index) => (
+                        <div key={debt.name} className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: Object.values(CHART_COLORS)[index % Object.keys(CHART_COLORS).length] }}
+                            />
+                            <div className="text-muted-foreground">{debt.name}</div>
+                          </div>
+                          <div className="font-medium">
+                            ${debt.value.toLocaleString()}
+                            <span className="text-muted-foreground ml-2">({debt.percentage}%)</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Investments Tab */}
+            <TabsContent value="investments" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    Investment Overview
+                  </CardTitle>
+                  <CardDescription>Your investment portfolio and strategy</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <div className="text-sm text-muted-foreground">Emergency Fund</div>
+                        <div className="text-2xl font-bold">${parseFloat(financialData.emergencyFund || '0').toLocaleString()}</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-muted-foreground">Retirement Savings</div>
+                        <div className="text-2xl font-bold">${parseFloat(financialData.retirementSavings || '0').toLocaleString()}</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-muted-foreground">Investment Accounts</div>
+                        <div className="text-2xl font-bold">${parseFloat(financialData.investmentAccounts || '0').toLocaleString()}</div>
+                      </div>
+                    </div>
+                    
+                    <div className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RechartsPieChart>
+                          <Pie
+                            data={prepareInvestmentData()}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                            outerRadius={120}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {prepareInvestmentData().map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={Object.values(CHART_COLORS)[index % Object.keys(CHART_COLORS).length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip content={<CustomTooltip />} />
+                        </RechartsPieChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <div className="text-sm font-medium mb-2">Investment Types</div>
+                        <div className="flex flex-wrap gap-2">
+                          {financialData.investmentTypes && financialData.investmentTypes.length > 0 ? (
+                            financialData.investmentTypes.map((type, index) => (
+                              <div key={index} className="bg-muted px-3 py-1 rounded-full text-sm capitalize">
+                                {type.replace('-', ' ')}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-muted-foreground">No investment types specified</div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="text-sm font-medium mb-2">Risk Profile</div>
+                        <div className="bg-muted p-4 rounded-lg">
+                          <div className="space-y-4">
+                            <div>
+                              <div className="flex justify-between mb-2">
+                                <span className="text-sm text-muted-foreground">Risk Tolerance</span>
+                                <span className="font-medium capitalize">{financialData.riskTolerance}</span>
+                              </div>
+                              <Progress
+                                value={
+                                  financialData.riskTolerance === 'conservative' ? 33 :
+                                  financialData.riskTolerance === 'moderate' ? 66 : 100
+                                }
+                                className="h-2"
+                              />
+                            </div>
+                            <div>
+                              <div className="flex justify-between mb-2">
+                                <span className="text-sm text-muted-foreground">Investment Experience</span>
+                                <span className="font-medium capitalize">{financialData.investmentExperience}</span>
+                              </div>
+                              <Progress
+                                value={
+                                  financialData.investmentExperience === 'beginner' ? 33 :
+                                  financialData.investmentExperience === 'intermediate' ? 66 : 100
+                                }
+                                className="h-2"
+                              />
+                            </div>
+                            <div>
+                              <div className="flex justify-between mb-2">
+                                <span className="text-sm text-muted-foreground">Financial Knowledge</span>
+                                <span className="font-medium capitalize">{financialData.financialKnowledge}</span>
+                              </div>
+                              <Progress
+                                value={
+                                  financialData.financialKnowledge === 'basic' ? 33 :
+                                  financialData.financialKnowledge === 'intermediate' ? 66 : 100
+                                }
+                                className="h-2"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Goals Tab */}
+            <TabsContent value="goals" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5" />
+                    Financial Goals
+                  </CardTitle>
+                  <CardDescription>Your short, medium, and long-term financial goals</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <Card>
                         <CardHeader className="pb-2">
-                          <div className="flex justify-between">
-                            <CardTitle>Debt Payoff Strategy</CardTitle>
-                            <Button variant="ghost" size="sm">
-                              <Sliders className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <CardDescription>Last modified: 2 days ago</CardDescription>
+                          <CardTitle className="text-lg">Short-Term</CardTitle>
+                          <CardDescription>1-2 years</CardDescription>
                         </CardHeader>
                         <CardContent>
-                          <div className="flex flex-wrap gap-4 mb-4">
-                            <div className="flex-1 min-w-[150px]">
-                              <div className="text-xs text-muted-foreground">Monthly Payment</div>
-                              <div className="text-lg font-semibold">$850</div>
-                            </div>
-                            <div className="flex-1 min-w-[150px]">
-                              <div className="text-xs text-muted-foreground">Interest Saved</div>
-                              <div className="text-lg font-semibold">$3,245</div>
-                            </div>
-                            <div className="flex-1 min-w-[150px]">
-                              <div className="text-xs text-muted-foreground">Payoff Date</div>
-                              <div className="text-lg font-semibold">Jun 2026</div>
-                            </div>
-                          </div>
-                          <Button variant="outline" size="sm" className="w-full">
-                            Continue Simulation
-                          </Button>
+                          <p>{financialData.shortTermGoal || 'No short-term goal set'}</p>
                         </CardContent>
                       </Card>
+                      <Card>
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-lg">Medium-Term</CardTitle>
+                          <CardDescription>3-5 years</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <p>{financialData.mediumTermGoal || 'No medium-term goal set'}</p>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-lg">Long-Term</CardTitle>
+                          <CardDescription>5+ years</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <p>{financialData.longTermGoal || 'No long-term goal set'}</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <div className="text-sm font-medium mb-2">Primary Financial Goal</div>
+                        <div className="bg-muted p-4 rounded-lg capitalize">
+                          {financialData.financialGoal ? financialData.financialGoal.replace('-', ' ') : 'Not specified'}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="text-sm font-medium mb-2">Financial Priorities</div>
+                        <div className="flex flex-wrap gap-2">
+                          {financialData.financialPriorities && financialData.financialPriorities.length > 0 ? (
+                            financialData.financialPriorities.map((priority, index) => (
+                              <div key={index} className="bg-muted px-3 py-1 rounded-full text-sm capitalize">
+                                {priority.replace('-', ' ')}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-muted-foreground">No financial priorities specified</div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
-
-          {/* Micro-Learning Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recommended Learning</CardTitle>
-              <CardDescription>Personalized financial education based on your situation</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="bg-fintwin-blue-light/20 p-2 rounded-full">
-                        <CoinsIcon className="h-4 w-4 text-fintwin-blue" />
-                      </div>
-                      <div className="text-sm font-medium">Emergency Funds</div>
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-3">
-                      Learn how to build an adequate emergency fund for financial security.
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="text-xs">5 min read</div>
-                      <Button variant="ghost" size="sm" className="h-8 px-2">
-                        Start
-                        <ArrowRight className="ml-1 h-3 w-3" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="bg-fintwin-teal-light/20 p-2 rounded-full">
-                        <LineChart className="h-4 w-4 text-fintwin-teal" />
-                      </div>
-                      <div className="text-sm font-medium">Debt Strategies</div>
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-3">
-                      Compare avalanche vs. snowball methods for faster debt payoff.
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="text-xs">8 min read</div>
-                      <Button variant="ghost" size="sm" className="h-8 px-2">
-                        Start
-                        <ArrowRight className="ml-1 h-3 w-3" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="bg-fintwin-green-light/20 p-2 rounded-full">
-                        <BarChart3 className="h-4 w-4 text-fintwin-green" />
-                      </div>
-                      <div className="text-sm font-medium">Investment Basics</div>
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-3">
-                      Learn simple principles for getting started with investing.
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="text-xs">10 min read</div>
-                      <Button variant="ghost" size="sm" className="h-8 px-2">
-                        Start
-                        <ArrowRight className="ml-1 h-3 w-3" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </main>
     </div>
