@@ -98,13 +98,11 @@ class FinTwinApp:
         # Sidebar navigation
         page = st.sidebar.radio(
             "Navigation",
-            ["Data Input", "Expense Management", "Financial Health", "Simulation Playground", "Recommendations"]
+            ["Financial Data Management", "Financial Health", "Simulation Playground", "Recommendations"]
         )
 
-        if page == "Data Input":
-            self.show_data_input()
-        elif page == "Expense Management":
-            self.show_expense_management()
+        if page == "Financial Data Management":
+            self.show_financial_data_management()
         elif page == "Financial Health":
             self.show_financial_health()
         elif page == "Simulation Playground":
@@ -112,69 +110,47 @@ class FinTwinApp:
         elif page == "Recommendations":
             self.show_recommendations()
 
-    def show_data_input(self):
-        st.header("📊 Data Input")
+    def show_financial_data_management(self):
+        st.header("📊 Financial Data Management")
         st.markdown("""
-            Connect your bank account or manually input your financial data to get started.
+            Manage your financial data and monthly expenses in one place.
             Your data is encrypted and secure.
         """)
 
-        input_method = st.radio(
-            "Choose input method:",
-            ["Manual Input", "Connect Bank Account"]
-        )
+        # Create tabs for different sections
+        tab1, tab2 = st.tabs(["Basic Financial Information", "Monthly Expenses"])
 
-        if input_method == "Manual Input":
-            self.manual_data_input()
-        else:
-            self.bank_connection()
+        with tab1:
+            self.show_basic_financial_info()
+        
+        with tab2:
+            self.show_monthly_expenses()
 
-    def manual_data_input(self):
+    def show_basic_financial_info(self):
+        st.subheader("Basic Financial Information")
+        
         with st.form("financial_data_form"):
-            st.subheader("Income Information")
+            st.markdown("#### Income Information")
             monthly_income = st.number_input("Monthly Income ($)", min_value=0.0, step=100.0)
             
-            st.subheader("Expenses")
+            st.markdown("#### Savings and Debt")
             col1, col2 = st.columns(2)
             with col1:
-                rent = st.number_input("Rent/Mortgage ($)", min_value=0.0, step=100.0)
-                utilities = st.number_input("Utilities ($)", min_value=0.0, step=10.0)
-                groceries = st.number_input("Groceries ($)", min_value=0.0, step=10.0)
+                savings = st.number_input("Current Savings ($)", min_value=0.0, step=100.0)
             with col2:
-                transportation = st.number_input("Transportation ($)", min_value=0.0, step=10.0)
-                entertainment = st.number_input("Entertainment ($)", min_value=0.0, step=10.0)
-                other = st.number_input("Other Expenses ($)", min_value=0.0, step=10.0)
+                debt = st.number_input("Current Debt ($)", min_value=0.0, step=100.0)
 
-            st.subheader("Savings and Debt")
-            savings = st.number_input("Current Savings ($)", min_value=0.0, step=100.0)
-            debt = st.number_input("Current Debt ($)", min_value=0.0, step=100.0)
-
-            if st.form_submit_button("Submit Data"):
+            if st.form_submit_button("Save Basic Information"):
                 user_data = {
                     "income": monthly_income,
-                    "expenses": {
-                        "rent": rent,
-                        "utilities": utilities,
-                        "groceries": groceries,
-                        "transportation": transportation,
-                        "entertainment": entertainment,
-                        "other": other
-                    },
                     "savings": savings,
                     "debt": debt
                 }
                 st.session_state.user_data = user_data
-                st.success("Data submitted successfully!")
+                st.success("Basic financial information saved successfully!")
 
-    def bank_connection(self):
-        st.info("Bank connection feature coming soon!")
-        st.markdown("""
-            We're working on integrating with major banks to securely import your transaction data.
-            For now, please use the manual input option.
-        """)
-
-    def show_expense_management(self):
-        st.header("📊 Expense Management")
+    def show_monthly_expenses(self):
+        st.subheader("Monthly Expenses")
         
         # Month and Year Selection
         col1, col2 = st.columns(2)
@@ -200,7 +176,7 @@ class FinTwinApp:
 
         # Expense Input Form
         with st.form(f"expense_form_{month_key}"):
-            st.subheader(f"Expenses for {selected_month} {selected_year}")
+            st.markdown(f"#### Expenses for {selected_month} {selected_year}")
             
             # Create columns for better layout
             cols = st.columns(3)
@@ -216,16 +192,16 @@ class FinTwinApp:
                         step=10.0
                     )
 
-            if st.form_submit_button("Save Expenses"):
+            if st.form_submit_button("Save Monthly Expenses"):
                 st.session_state.monthly_expenses[month_key] = expense_data
                 st.success(f"Expenses for {selected_month} {selected_year} saved successfully!")
 
         # Display Monthly Summary
-        st.subheader("Monthly Summary")
+        st.markdown("#### Monthly Summary")
         self.show_monthly_summary(month_key)
 
         # Display Expense History
-        st.subheader("Expense History")
+        st.markdown("#### Expense History")
         self.show_expense_history()
 
     def show_monthly_summary(self, month_key):
