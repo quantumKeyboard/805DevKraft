@@ -1,7 +1,5 @@
 # FinTwin - AI Financial Advisor
 
-![FinTwin](assets/logo.png)
-
 FinTwin is an advanced AI-powered financial advisor application that helps users track expenses, analyze financial health, and get personalized recommendations. Built with cutting-edge AI technology and robust financial analytics, it serves as your personal financial companion.
 
 ## Table of Contents
@@ -176,10 +174,6 @@ pytest tests/
 2. Create a feature branch
 3. Make your changes
 4. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Support
 
