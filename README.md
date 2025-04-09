@@ -72,6 +72,7 @@ prophet==1.1.5
 plotly==5.18.0
 python-dotenv==1.0.0
 openai==1.7.0
+google-generativeai==0.3.0 
 langchain==0.1.4
 pydantic==2.6.1
 python-jose==3.3.0
@@ -91,6 +92,14 @@ bcrypt==4.1.2
    - Sign up at [OpenAI](https://openai.com)
    - Generate an API key
    - Add it to your `.env` file
+     
+3. **Google Gemini API Key**
+   - Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+   - Sign in with your Google account
+   - Create a new API key
+   - Copy the key and paste it in your `.env` file
+   - Make sure to enable the Gemini API in your Google Cloud Console
+   - Add this key to the Financial Simulator.py file
 
 ## Usage
 
